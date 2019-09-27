@@ -1,9 +1,9 @@
 (function (React) {
 
 	const todos = [
-		{id:1,completed:false,content:"hello"},
-		{id:2,completed:true,content:"hello2"},
-		{id:3,completed:false,content:"hello3"}
+		{id:1,completed:false,content:"hello",checked:false},
+		{id:2,completed:true,content:"hello2",checked:false},
+		{id:3,completed:false,content:"hello3",checked:false}
 	];
 
 
@@ -12,7 +12,8 @@
 		constructor(){
 			super();
 			this.state={
-				todos
+				todos,
+				selectAllState:false
 			};
 		}
 
@@ -57,7 +58,7 @@
 							{/*<!-- Remove this if you don't implement routing -->*/}
 							<ul className="filters">
 								<li>
-									<a className="selected" href="#/">All</a>
+									<a className="selected" href="#/" onClick={this.handeSelectAll.bind(this)}>All</a>
 								</li>
 								<li>
 									<a href="#/active">Active</a>
@@ -89,7 +90,7 @@
 					return (
 						<li key={item.id} className={item.completed?'completed':''}>
 							<div className="view">
-								<input className="toggle" type="checkbox" defaultChecked/>
+								<input className="toggle" type="checkbox" checked={item.checked}/>
 								<label>{item.content}</label>
 								<button className="destroy" onClick={this.handleOnClick.bind(this,item.id)}></button>
 							</div>
@@ -128,6 +129,17 @@
 			this.setState({
 				todos:todos
 			});
+		}
+
+		handeSelectAll(e){
+			let state = this.state.selectAllState;
+			state = !state;
+			this.setState({
+				state:state
+			});
+			//todo 设置所有复选框的状态
+
+
 		}
 
 	}
