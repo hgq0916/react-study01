@@ -54,21 +54,21 @@
 						{/*<!-- This footer should hidden by default and shown when there are todos -->*/}
 						<footer className="footer">
 							{/*<!-- This should be `0 items left` by default -->*/}
-							<span className="todo-count"><strong>0</strong> item left</span>
+							<span className="todo-count"><strong>{this.state.todos.length}</strong> item left</span>
 							{/*<!-- Remove this if you don't implement routing -->*/}
 							<ul className="filters">
 								<li>
 									<a className="selected" href="#/" onClick={this.handeSelectAll.bind(this)}>All</a>
 								</li>
 								<li>
-									<a href="#/active">Active</a>
+									<a href="#/active" onClick={this.handleActiveEvent.bind(this)}>Active</a>
 								</li>
 								<li>
-									<a href="#/completed">Completed</a>
+									<a href="#/completed" onClick={this.handleCompletedEvent.bind(this)}>Completed</a>
 								</li>
 							</ul>
 							{/*<!-- Hidden if no completed items are left ↓ -->*/}
-							<button className="clear-completed">Clear completed</button>
+							<button className="clear-completed" onClick={this.handleClearCompletedEvent.bind(this)}>Clear completed</button>
 						</footer>
 						</section>
 						<footer className="info">
@@ -84,13 +84,51 @@
 			
 		}
 
+		handleClearCompletedEvent(e){
+			let todos = this.state.todos.filter((item)=>{
+				return !item.completed;
+			});
+			this.setState({
+				todos:todos
+			});
+		}
+
+		handleActiveEvent(e){
+			this.state.todos.forEach((item)=>{
+				if(item.checked){
+					if(item.completed){
+						item.completed = false;
+						item.checked = false;
+					}
+				}
+			});
+			
+			this.setState({
+				todos:this.state.todos
+			});
+		}
+
+		handleCompletedEvent(e){
+			//获取所有选中的选项
+			this.state.todos.forEach((item)=>{
+				if(item.checked){
+					item.completed = true;
+					item.checked = false;
+				}
+			});
+			
+			this.setState({
+				todos:this.state.todos
+			});
+		}
+
 		getTodosHtml(){
 			return (
 				this.state.todos.map(item=>{
 					return (
 						<li key={item.id} className={item.completed?'completed':''}>
 							<div className="view">
-								<input className="toggle" type="checkbox" checked={item.checked}/>
+								<input className="toggle" type="checkbox" onChange={this.handleChangeEvent.bind(this,item.id)} checked={item.checked}/>
 								<label>{item.content}</label>
 								<button className="destroy" onClick={this.handleOnClick.bind(this,item.id)}></button>
 							</div>
@@ -102,18 +140,31 @@
 			);
 		}
 
+		handleChangeEvent(id,e){
+			this.state.todos.forEach((item)=>{
+				if(item.id === id){
+					item.checked = !item.checked;
+					return false; 
+				}
+			});
+			
+			this.setState({
+				todos:this.state.todos
+			});
+		}
+
 		handleOnKeyDown(e){
 			const {target,keyCode} = e;
 			if(keyCode === 13){
 				//添加待办事项
-				console.log(target.value);
 				let content = target.value.trim();
+				if(content == '') return;
 				let lastId = 1;
 				if(this.state.todos != null && this.state.todos.length>0){
 					lastId = this.state.todos[this.state.todos.length-1].id;
 				}
 				
-				this.state.todos.push({id:lastId+1,completed:false,content:content});
+				this.state.todos.push({id:lastId+1,completed:false,content:content,checked:false});
 				this.setState({
 					todos:this.state.todos
 				});
@@ -121,7 +172,6 @@
 		}
 
 		handleOnClick(id,e){
-			console.log(id,e);
 			//删除元素
 			let todos = this.state.todos;
 			let index = todos.findIndex((item)=>{return item.id === id});
@@ -134,11 +184,17 @@
 		handeSelectAll(e){
 			let state = this.state.selectAllState;
 			state = !state;
-			this.setState({
-				state:state
-			});
 			//todo 设置所有复选框的状态
+			if(this.state.todos != null && this.state.todos.length>0){
+				this.state.todos.forEach((item)=>{
+					item.checked = state;
+				});
+			}
 
+			this.setState({
+				selectAllState:state,
+				todos:this.state.todos
+			});
 
 		}
 
